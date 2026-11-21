@@ -149,6 +149,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES localAuthors (authorId)"
 					+ " ON DELETE CASCADE)";
 
+	private static final String CREATE_SCORES =
+			"CREATE TABLE ajn_scores"
+					+ " (authorId _HASH NOT NULL,"
+					+ " score INT NOT NULL DEFAULT 0,"
+					+ " isGenesis BOOLEAN NOT NULL DEFAULT FALSE,"
+					+ " PRIMARY KEY (authorId))";
+
 	private static final String CREATE_GROUPS =
 			"CREATE TABLE groups"
 					+ " (groupId _HASH NOT NULL,"
@@ -533,6 +540,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_SETTINGS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_LOCAL_AUTHORS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_CONTACTS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_SCORES));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUPS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_METADATA));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_VISIBILITIES));
