@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:padding="16dp">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<!-- Card Dettagli Profilo -->
+		<com.google.android.material.card.MaterialCardView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:cardCornerRadius="12dp"
+			app:cardElevation="4dp"
+			app:contentPadding="16dp">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<!-- Nome Utente -->
+				<TextView
+					android:id="@+id/textAuthorName"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="22sp"
+					android:textStyle="bold"
+					tools:text="Nome Utente" />
+
+				<!-- Badge Ruolo (GENESIS / SANDBOX / TRUSTED) -->
+				<TextView
+					android:id="@+id/textRoleBadge"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					android:background="@drawable/badge_background"
+					android:paddingHorizontal="12dp"
+					android:paddingVertical="4dp"
+					android:textColor="@android:color/white"
+					android:textStyle="bold"
+					tools:text="RUOLO: SANDBOX" />
+
+				<!-- Punteggio Score -->
+				<TextView
+					android:id="@+id/textScore"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="16dp"
+					android:textSize="18sp"
+					tools:text="Punteggio Score: 0 / 50" />
+
+				<ProgressBar
+					android:id="@+id/progressScore"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					android:max="50"
+					tools:progress="20" />
+
+			</LinearLayout>
+		</com.google.android.material.card.MaterialCardView>
+
+		<!-- Card Permessi e Funzionalità -->
+		<com.google.android.material.card.MaterialCardView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			app:cardCornerRadius="12dp"
+			app:cardElevation="2dp"
+			app:contentPadding="16dp">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Permessi e Funzionalità"
+					android:textSize="16sp"
+					android:textStyle="bold" />
+
+				<TextView
+					android:id="@+id/textVotePermission"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					tools:text="• Votazione Post: Disabilitato (SANDBOX)" />
+
+				<TextView
+					android:id="@+id/textEvaluateUsers"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					tools:text="• Valutazione utenti: Disabilitata (SANDBOX)" />
+
+				<TextView
+					android:id="@+id/textSensitiveInfoPermission"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="4dp"
+					tools:text="• Info Sensibili: Bloccato" />
+
+				<TextView
+					android:id="@+id/textRateLimit"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="4dp"
+					tools:text="• Rate Limit Post: Attivo" />
+				<!-- TODO: Specificare il tipo di rate limit in futuro -->
+
+			</LinearLayout>
+		</com.google.android.material.card.MaterialCardView>
+
+	</LinearLayout>
+</ScrollView>
