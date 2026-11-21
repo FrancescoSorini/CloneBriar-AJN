@@ -1327,6 +1327,31 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 	}
 
+	/** MODIFICHE PROGETTO DI TESI AJN*/
+	@Override
+	public int getScore(Transaction transaction, AuthorId authorId)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getScore(txn, authorId);
+	}
+
+	@Override
+	public boolean isGenesis(Transaction transaction, AuthorId authorId)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.isGenesis(txn, authorId);
+	}
+
+	@Override
+	public void updateScore(Transaction transaction, AuthorId authorId,
+			int newScore) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		db.updateScore(txn, authorId, newScore);
+	}
+
+	/** MODIFICHE PROGETTO DI TESI AJN*/
+
 	private class CommitActionVisitor implements Visitor {
 
 		@Override

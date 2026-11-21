@@ -890,4 +890,23 @@ interface Database<T> {
 	 * Stores the given transport keys, deleting any keys they have replaced.
 	 */
 	void updateTransportKeys(T txn, TransportKeySet ks) throws DbException;
+
+	/** MODIFICHE PROGETTO DI TESI AJN*/
+
+	/**
+	 * Returns the score for the given author ID.
+	 */
+	int getScore(T txn, AuthorId authorId) throws DbException;
+
+	/**
+	 * Returns true if the given author ID is a genesis node.
+	 */
+	boolean isGenesis(T txn, AuthorId authorId) throws DbException;
+
+	/**
+	 * Updates the score for the given author ID.
+	 */
+	void updateScore(T txn, AuthorId authorId, int newScore) throws DbException;
+
+	/** MODIFICHE PROGETTO DI TESI AJN*/
 }

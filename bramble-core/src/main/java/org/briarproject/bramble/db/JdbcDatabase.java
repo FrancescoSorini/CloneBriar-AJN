@@ -3839,4 +3839,80 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throw new DbException(e);
 		}
 	}
+	/** MODIFICHE PROGETTO DI TESI AJN*/
+
+	@Override
+	public int getScore(Connection txn, AuthorId authorId) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT score FROM ajn_scores WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, authorId.getBytes());
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				int score = rs.getInt(1);
+				rs.close();
+				ps.close();
+				return score;
+			}
+			rs.close();
+			ps.close();
+			sql = "INSERT INTO ajn_scores (authorId, score, isGenesis) VALUES (?, 0, FALSE)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, authorId.getBytes());
+			ps.executeUpdate();
+			ps.close();
+			return 0;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public boolean isGenesis(Connection txn, AuthorId authorId) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT isGenesis FROM ajn_scores WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, authorId.getBytes());
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				boolean isGenesis = rs.getBoolean(1);
+				rs.close();
+				ps.close();
+				return isGenesis;
+			}
+			rs.close();
+			ps.close();
+			return false;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void updateScore(Connection txn, AuthorId authorId, int newScore)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			getScore(txn, authorId);
+			String sql = "UPDATE ajn_scores SET score = ? WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, newScore);
+			ps.setBytes(2, authorId.getBytes());
+			ps.executeUpdate();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	/** MODIFICHE PROGETTO DI TESI AJN*/
 }

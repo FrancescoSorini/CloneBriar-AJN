@@ -250,4 +250,7 @@ public interface ActivityComponent {
 	void inject(ConnectViaBluetoothActivity connectViaBluetoothActivity);
 
 	void inject(MailboxActivity mailboxActivity);
+
+	/** Modifiche progetto AJN*/
+	void inject(org.briarproject.briar.android.ajn.AJN_ProfileFragment fragment);
 }

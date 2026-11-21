@@ -815,4 +815,23 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	void updateTransportKeys(Transaction txn, Collection<TransportKeySet> keys)
 			throws DbException;
+	/** MODIFICHE PROGETTO DI TESI AJN*/
+
+	/**
+	 * Returns the score for the given author ID.
+	 */
+	int getScore(Transaction txn, AuthorId authorId) throws DbException;
+
+	/**
+	 * Returns true if the given author ID is a genesis node.
+	 */
+	boolean isGenesis(Transaction txn, AuthorId authorId) throws DbException;
+
+	/**
+	 * Updates the score for the given author ID.
+	 */
+	void updateScore(Transaction txn, AuthorId authorId, int newScore)
+			throws DbException;
+
+	/** MODIFICHE PROGETTO DI TESI AJN*/
 }
