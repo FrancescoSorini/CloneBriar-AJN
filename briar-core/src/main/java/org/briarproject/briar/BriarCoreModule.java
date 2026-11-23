@@ -15,6 +15,7 @@ import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.briar.sharing.SharingModule;
 import org.briarproject.briar.test.TestModule;
+import org.briarproject.briar.topic.AJN_TopicModule;
 
 import dagger.Module;
 
@@ -33,7 +34,8 @@ import dagger.Module;
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class,
-		TestModule.class
+		TestModule.class,
+		AJN_TopicModule.class
 })
 public class BriarCoreModule {
 }

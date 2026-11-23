@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
 import org.briarproject.bramble.api.crypto.SignaturePublicKey;
+import org.briarproject.bramble.api.db.AJN_TopicRecord ;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbClosedException;
@@ -155,6 +156,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " score INT NOT NULL DEFAULT 0,"
 					+ " isGenesis BOOLEAN NOT NULL DEFAULT FALSE,"
 					+ " PRIMARY KEY (authorId))";
+
+	private static final String CREATE_AJN_TOPICS =
+			"CREATE TABLE ajn_topics"
+					+ " (topicId _HASH NOT NULL,"
+					+ " communityId _HASH NOT NULL,"
+					+ " name _STRING NOT NULL,"
+					+ " description _STRING NOT NULL,"
+					+ " authorId _HASH NOT NULL,"
+					+ " createdAt LONG NOT NULL,"
+					+ " status INT NOT NULL,"
+					+ " accessRules INT NOT NULL,"
+					+ " forumGroupId _HASH NOT NULL,"
+					+ " PRIMARY KEY (topicId),"
+					+ " FOREIGN KEY (forumGroupId)"
+					+ " REFERENCES groups (groupId)"
+					+ " ON DELETE CASCADE)";
+
+	private static final String CREATE_AJN_TOPIC_SUBSCRIPTIONS =
+			"CREATE TABLE ajn_topic_subscriptions"
+					+ " (topicId _HASH NOT NULL,"
+					+ " state INT NOT NULL,"
+					+ " joinedAt LONG NOT NULL,"
+					+ " PRIMARY KEY (topicId),"
+					+ " FOREIGN KEY (topicId)"
+					+ " REFERENCES ajn_topics (topicId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_GROUPS =
 			"CREATE TABLE groups"
@@ -542,6 +569,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_CONTACTS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_SCORES));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUPS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_AJN_TOPICS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_AJN_TOPIC_SUBSCRIPTIONS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_METADATA));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_VISIBILITIES));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGES));
@@ -3909,6 +3938,212 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void addAjnTopic(Connection txn, AJN_TopicRecord  record)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO ajn_topics"
+					+ " (topicId, communityId, name, description, authorId,"
+					+ " createdAt, status, accessRules, forumGroupId)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, record.topicId);
+			ps.setBytes(2, record.communityId.getBytes());
+			ps.setString(3, record.name);
+			ps.setString(4, record.description);
+			ps.setBytes(5, record.authorId.getBytes());
+			ps.setLong(6, record.createdAt);
+			ps.setInt(7, record.status);
+			ps.setInt(8, record.accessRules);
+			ps.setBytes(9, record.forumGroupId.getBytes());
+			ps.executeUpdate();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	@Nullable
+	public AJN_TopicRecord getAjnTopic(Connection txn, byte[] topicId)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT communityId, name, description, authorId,"
+					+ " createdAt, status, accessRules, forumGroupId"
+					+ " FROM ajn_topics WHERE topicId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, topicId);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				GroupId communityId = new GroupId(rs.getBytes(1));
+				String name = rs.getString(2);
+				String description = rs.getString(3);
+				AuthorId authorId = new AuthorId(rs.getBytes(4));
+				long createdAt = rs.getLong(5);
+				int status = rs.getInt(6);
+				int accessRules = rs.getInt(7);
+				GroupId forumGroupId = new GroupId(rs.getBytes(8));
+				rs.close();
+				ps.close();
+				return new AJN_TopicRecord(topicId, communityId, name,
+						description, authorId, createdAt, status, accessRules,
+						forumGroupId);
+			}
+			rs.close();
+			ps.close();
+			return null;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	@Nullable
+	public AJN_TopicRecord getAjnTopicByForumId(Connection txn, GroupId forumGroupId)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT topicId, communityId, name, description, authorId,"
+					+ " createdAt, status, accessRules"
+					+ " FROM ajn_topics WHERE forumGroupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, forumGroupId.getBytes());
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				byte[] topicId = rs.getBytes(1);
+				GroupId communityId = new GroupId(rs.getBytes(2));
+				String name = rs.getString(3);
+				String description = rs.getString(4);
+				AuthorId authorId = new AuthorId(rs.getBytes(5));
+				long createdAt = rs.getLong(6);
+				int status = rs.getInt(7);
+				int accessRules = rs.getInt(8);
+				rs.close();
+				ps.close();
+				return new AJN_TopicRecord(topicId, communityId, name,
+						description, authorId, createdAt, status, accessRules,
+						forumGroupId);
+			}
+			rs.close();
+			ps.close();
+			return null;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Collection<AJN_TopicRecord> getAjnTopics(Connection txn)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			List<AJN_TopicRecord> topics = new ArrayList<>();
+			String sql = "SELECT topicId, communityId, name, description, authorId,"
+					+ " createdAt, status, accessRules, forumGroupId"
+					+ " FROM ajn_topics";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				byte[] topicId = rs.getBytes(1);
+				GroupId communityId = new GroupId(rs.getBytes(2));
+				String name = rs.getString(3);
+				String description = rs.getString(4);
+				AuthorId authorId = new AuthorId(rs.getBytes(5));
+				long createdAt = rs.getLong(6);
+				int status = rs.getInt(7);
+				int accessRules = rs.getInt(8);
+				GroupId forumGroupId = new GroupId(rs.getBytes(9));
+				topics.add(new AJN_TopicRecord (topicId, communityId, name,
+						description, authorId, createdAt, status, accessRules,
+						forumGroupId));
+			}
+			rs.close();
+			ps.close();
+			return topics;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void updateAjnTopicStatus(Connection txn, byte[] topicId, int status)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE ajn_topics SET status = ? WHERE topicId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, status);
+			ps.setBytes(2, topicId);
+			ps.executeUpdate();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setAjnTopicSubscription(Connection txn, byte[] topicId, int state)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			ps = txn.prepareStatement("UPDATE ajn_topic_subscriptions SET state = ? WHERE topicId = ?");
+			ps.setInt(1, state);
+			ps.setBytes(2, topicId);
+			int updated = ps.executeUpdate();
+			ps.close();
+			if (updated == 0) {
+				ps = txn.prepareStatement("INSERT INTO ajn_topic_subscriptions (topicId, state, joinedAt) VALUES (?, ?, ?)");
+				ps.setBytes(1, topicId);
+				ps.setInt(2, state);
+				ps.setLong(3, System.currentTimeMillis());
+				ps.executeUpdate();
+				ps.close();
+			}
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public int getAjnTopicSubscription(Connection txn, byte[] topicId)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT state FROM ajn_topic_subscriptions WHERE topicId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, topicId);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				int state = rs.getInt(1);
+				rs.close();
+				ps.close();
+				return state;
+			}
+			rs.close();
+			ps.close();
+			return 0;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}

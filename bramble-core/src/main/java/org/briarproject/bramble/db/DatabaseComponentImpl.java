@@ -14,6 +14,8 @@ import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.AJN_TopicRecord;
+import org.briarproject.bramble.api.db.AJN_TopicRecord ;
 import org.briarproject.bramble.api.db.CommitAction;
 import org.briarproject.bramble.api.db.CommitAction.Visitor;
 import org.briarproject.bramble.api.db.ContactExistsException;
@@ -1348,6 +1350,60 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		db.updateScore(txn, authorId, newScore);
+	}
+
+	@Override
+	public void addAjnTopic(Transaction transaction, AJN_TopicRecord  record)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		db.addAjnTopic(txn, record);
+	}
+
+	@Override
+	@Nullable
+	public AJN_TopicRecord  getAjnTopic(Transaction transaction, byte[] topicId)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getAjnTopic(txn, topicId);
+	}
+
+	@Override
+	@Nullable
+	public AJN_TopicRecord  getAjnTopicByForumId(Transaction transaction, GroupId forumGroupId)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getAjnTopicByForumId(txn, forumGroupId);
+	}
+
+	@Override
+	public Collection<AJN_TopicRecord> getAjnTopics(Transaction transaction)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getAjnTopics(txn);
+	}
+
+	@Override
+	public void updateAjnTopicStatus(Transaction transaction, byte[] topicId,
+			int status) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		db.updateAjnTopicStatus(txn, topicId, status);
+	}
+
+	@Override
+	public void setAjnTopicSubscription(Transaction transaction, byte[] topicId,
+			int state) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		db.setAjnTopicSubscription(txn, topicId, state);
+	}
+
+	@Override
+	public int getAjnTopicSubscription(Transaction transaction, byte[] topicId)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getAjnTopicSubscription(txn, topicId);
 	}
 
 	/** MODIFICHE PROGETTO DI TESI AJN*/

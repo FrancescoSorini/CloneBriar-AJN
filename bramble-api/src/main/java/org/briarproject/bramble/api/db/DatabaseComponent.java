@@ -833,5 +833,48 @@ public interface DatabaseComponent extends TransactionManager {
 	void updateScore(Transaction txn, AuthorId authorId, int newScore)
 			throws DbException;
 
+	/**
+	 * Stores a new AJN Topic in the database.
+	 */
+	void addAjnTopic(Transaction txn, AJN_TopicRecord record) throws DbException;
+
+	/**
+	 * Returns the raw record of the AJN Topic for the given topic ID, or null if not found.
+	 */
+	@Nullable
+	AJN_TopicRecord getAjnTopic(Transaction txn, byte[] topicId)
+			throws DbException;
+
+	/**
+	 * Returns the raw record of the AJN Topic associated with the given forum group ID, or null if not found.
+	 */
+	@Nullable
+	AJN_TopicRecord getAjnTopicByForumId(Transaction txn, GroupId forumGroupId)
+			throws DbException;
+
+	/**
+	 * Returns all raw AJN Topic records.
+	 */
+	Collection<AJN_TopicRecord> getAjnTopics(Transaction txn)
+			throws DbException;
+
+	/**
+	 * Updates the status of the given AJN Topic.
+	 */
+	void updateAjnTopicStatus(Transaction txn, byte[] topicId, int status)
+			throws DbException;
+
+	/**
+	 * Sets the subscription state of the local user for the given AJN Topic.
+	 */
+	void setAjnTopicSubscription(Transaction txn, byte[] topicId, int state)
+			throws DbException;
+
+	/**
+	 * Returns the subscription state code of the local user for the given AJN Topic.
+	 */
+	int getAjnTopicSubscription(Transaction txn, byte[] topicId)
+			throws DbException;
+
 	/** MODIFICHE PROGETTO DI TESI AJN*/
 }

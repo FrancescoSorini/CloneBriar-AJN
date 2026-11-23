@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.AJN_TopicRecord;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -907,6 +908,46 @@ interface Database<T> {
 	 * Updates the score for the given author ID.
 	 */
 	void updateScore(T txn, AuthorId authorId, int newScore) throws DbException;
+
+	/**
+	 * Stores a new AJN Topic in the database.
+	 */
+	void addAjnTopic(T txn, AJN_TopicRecord record) throws DbException;
+
+	/**
+	 * Returns the raw record of the AJN Topic for the given topic ID, or null if not found.
+	 */
+	@Nullable
+	AJN_TopicRecord getAjnTopic(T txn, byte[] topicId) throws DbException;
+
+	/**
+	 * Returns the raw record of the AJN Topic associated with the given forum group ID, or null if not found.
+	 */
+	@Nullable
+	AJN_TopicRecord getAjnTopicByForumId(T txn, GroupId forumGroupId)
+			throws DbException;
+
+	/**
+	 * Returns all raw AJN Topic records.
+	 */
+	Collection<AJN_TopicRecord> getAjnTopics(T txn) throws DbException;
+
+	/**
+	 * Updates the status of the given AJN Topic.
+	 */
+	void updateAjnTopicStatus(T txn, byte[] topicId, int status)
+			throws DbException;
+
+	/**
+	 * Sets the subscription state of the local user for the given AJN Topic.
+	 */
+	void setAjnTopicSubscription(T txn, byte[] topicId, int state)
+			throws DbException;
+
+	/**
+	 * Returns the subscription state code of the local user for the given AJN Topic.
+	 */
+	int getAjnTopicSubscription(T txn, byte[] topicId) throws DbException;
 
 	/** MODIFICHE PROGETTO DI TESI AJN*/
 }
