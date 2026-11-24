@@ -167,11 +167,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " createdAt BIGINT NOT NULL,"
 					+ " status INT NOT NULL,"
 					+ " accessRules INT NOT NULL,"
-					+ " forumGroupId _HASH NOT NULL,"
+					+ " forumGroupId _HASH NOT NULL UNIQUE,"
 					+ " PRIMARY KEY (topicId),"
 					+ " FOREIGN KEY (forumGroupId)"
 					+ " REFERENCES groups (groupId)"
 					+ " ON DELETE CASCADE)";
+	/** Relazione 1:1 tra Topic AJN e Forum Briar nativo sottostante */
 
 	private static final String CREATE_AJN_TOPIC_SUBSCRIPTIONS =
 			"CREATE TABLE ajn_topic_subscriptions"
@@ -3954,7 +3955,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " createdAt, status, accessRules, forumGroupId)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, record.topicId);
+			ps.setBytes(1, record.getTopicId());
 			ps.setBytes(2, record.communityId.getBytes());
 			ps.setString(3, record.name);
 			ps.setString(4, record.description);

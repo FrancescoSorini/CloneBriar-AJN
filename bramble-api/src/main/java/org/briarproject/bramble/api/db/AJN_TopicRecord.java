@@ -13,7 +13,7 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class AJN_TopicRecord {
 
-	public final byte[] topicId;
+	private final byte[] topicId;
 	public final GroupId communityId;
 	public final String name;
 	public final String description;
@@ -26,7 +26,7 @@ public class AJN_TopicRecord {
 	public AJN_TopicRecord(byte[] topicId, GroupId communityId, String name,
 			String description, AuthorId authorId, long createdAt, int status,
 			int accessRules, GroupId forumGroupId) {
-		this.topicId = topicId;
+		this.topicId = topicId.clone();
 		this.communityId = communityId;
 		this.name = name;
 		this.description = description;
@@ -35,5 +35,9 @@ public class AJN_TopicRecord {
 		this.status = status;
 		this.accessRules = accessRules;
 		this.forumGroupId = forumGroupId;
+	}
+
+	public byte[] getTopicId() {
+		return topicId.clone();
 	}
 }

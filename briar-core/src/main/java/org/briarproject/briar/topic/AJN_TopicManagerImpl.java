@@ -60,10 +60,10 @@ public class AJN_TopicManagerImpl implements AJN_TopicManager {
 	}
 
 	@Override
-	public AJN_Topic createTopic(String name, String description,
+	public AJN_Topic createTopic(GroupId communityId, String name, String description,
 			AJN_AccessRules accessRules) throws DbException {
 		return db.transactionWithResult(false,
-				txn -> createTopic(txn, new GroupId(cryptoComponent.generateSecretKey().getBytes()), name, description, accessRules));
+				txn -> createTopic(txn, communityId, name, description, accessRules));
 	}
 
 	@Override
@@ -217,17 +217,21 @@ public class AJN_TopicManagerImpl implements AJN_TopicManager {
 		return forumManager.addLocalPost(txn, post);
 	}
 
-	private AJN_Topic parseRecord(AJN_TopicRecord record) {
-		return new AJN_Topic(
-				new AJN_TopicId(record.topicId),
-				record.communityId,
-				record.name,
-				record.description,
-				record.authorId,
-				record.createdAt,
-				AJN_TopicStatus.fromCode(record.status),
-				AJN_AccessRules.fromCode(record.accessRules),
-				record.forumGroupId
-		);
+	private AJN_Topic parseRecord(AJN_TopicRecord record) throws DbException {
+		try {
+			return new AJN_Topic(
+					new AJN_TopicId(record.getTopicId()),
+					record.communityId,
+					record.name,
+					record.description,
+					record.authorId,
+					record.createdAt,
+					AJN_TopicStatus.fromCode(record.status),
+					AJN_AccessRules.fromCode(record.accessRules),
+					record.forumGroupId
+			);
+		} catch (IllegalArgumentException e) {
+			throw new DbException(e);
+		}
 	}
 }

@@ -49,14 +49,13 @@ public class AJN_TopicManagerImplTest extends BrambleMockTestCase {
 		LocalAuthor localAuthor = getLocalAuthor();
 		AJN_Author ajnAuthor = new AJN_Author(localAuthor, 60, false); // TRUSTED User
 
+		GroupId communityId = new GroupId(getRandomId());
 		GroupId forumGroupId = new GroupId(getRandomId());
 		Group group = new Group(forumGroupId, ForumManager.CLIENT_ID, 0, new byte[0]);
 		Forum forum = new Forum(group, "Topic Test", new byte[0]);
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
-			oneOf(cryptoComponent).generateSecretKey();
-			will(returnValue(getSecretKey()));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(localAuthor));
 			oneOf(scoreManager).getAjnAuthor(txn, localAuthor);
@@ -70,7 +69,7 @@ public class AJN_TopicManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setAjnTopicSubscription(with(txn), with(any(byte[].class)), with(2)); // MEMBER code = 2
 		}});
 
-		AJN_Topic topic = manager.createTopic("Topic Test", "Descrizione", AJN_AccessRules.PUBLIC);
+		AJN_Topic topic = manager.createTopic(communityId, "Topic Test", "Descrizione", AJN_AccessRules.PUBLIC);
 		assertNotNull(topic);
 		assertEquals("Topic Test", topic.getName());
 	}
@@ -80,11 +79,10 @@ public class AJN_TopicManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		LocalAuthor localAuthor = getLocalAuthor();
 		AJN_Author sandboxAuthor = new AJN_Author(localAuthor, 10, false); // SANDBOX User
+		GroupId communityId = new GroupId(getRandomId());
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
-			oneOf(cryptoComponent).generateSecretKey();
-			will(returnValue(getSecretKey()));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(localAuthor));
 			oneOf(scoreManager).getAjnAuthor(txn, localAuthor);
@@ -92,7 +90,7 @@ public class AJN_TopicManagerImplTest extends BrambleMockTestCase {
 			// Nessun'altra interazione DB o Forum deve avvenire a causa del blocco permessi
 		}});
 
-		manager.createTopic("Topic Riservato", "Descrizione", AJN_AccessRules.RESTRICTED_TRUSTED);
+		manager.createTopic(communityId, "Topic Riservato", "Descrizione", AJN_AccessRules.RESTRICTED_TRUSTED);
 	}
 
 	@Test

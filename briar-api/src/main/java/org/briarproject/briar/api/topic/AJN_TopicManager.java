@@ -23,7 +23,7 @@ public interface AJN_TopicManager {
 	/**
 	 * Crea un nuovo Topic AJN (e il Forum Briar associato in background).
 	 */
-	AJN_Topic createTopic(String name, String description,
+	AJN_Topic createTopic(GroupId communityId, String name, String description,
 			AJN_AccessRules accessRules) throws DbException;
 
 	/**

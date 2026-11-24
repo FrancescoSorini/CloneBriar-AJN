@@ -46,7 +46,7 @@ class Migration50_51 implements Migration<Connection> {
 					+ " createdAt BIGINT NOT NULL,"
 					+ " status INT NOT NULL,"
 					+ " accessRules INT NOT NULL,"
-					+ " forumGroupId _HASH NOT NULL,"
+					+ " forumGroupId _HASH NOT NULL UNIQUE,"
 					+ " PRIMARY KEY (topicId),"
 					+ " FOREIGN KEY (forumGroupId)"
 					+ " REFERENCES groups (groupId)"
