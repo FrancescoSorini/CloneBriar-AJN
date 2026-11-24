@@ -4,6 +4,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
@@ -98,4 +100,16 @@ public interface AJN_TopicManager {
 	 * Archivia un Topic all'interno di una transazione.
 	 */
 	void archiveTopic(Transaction txn, AJN_TopicId topicId) throws DbException;
+
+	/**
+	 * Pubblica un nuovo post all'interno del Topic specificato se attivo.
+	 */
+	ForumPostHeader addTopicPost(AJN_TopicId topicId, String text,
+			@Nullable MessageId parentId) throws DbException;
+
+	/**
+	 * Pubblica un nuovo post all'interno del Topic specificato all'interno di una transazione.
+	 */
+	ForumPostHeader addTopicPost(Transaction txn, AJN_TopicId topicId, String text,
+			@Nullable MessageId parentId) throws DbException;
 }

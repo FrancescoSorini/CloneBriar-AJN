@@ -76,6 +76,16 @@ public class AJN_Topic {
 		return forumGroupId;
 	}
 
+	/** Ritorna true se il Topic è archiviato ed è in sola lettura */
+	public boolean isReadOnly() {
+		return status == AJN_TopicStatus.ARCHIVED;
+	}
+
+	/** Ritorna true se il Topic è attivo e può accettare nuovi post */
+	public boolean canAcceptPosts() {
+		return status == AJN_TopicStatus.ACTIVE;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

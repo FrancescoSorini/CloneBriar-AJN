@@ -102,7 +102,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 50;
+	static final int CODE_SCHEMA_VERSION = 51;
 
 	/**
 	 * The maximum number of idle connections to keep open.
@@ -164,7 +164,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " name _STRING NOT NULL,"
 					+ " description _STRING NOT NULL,"
 					+ " authorId _HASH NOT NULL,"
-					+ " createdAt LONG NOT NULL,"
+					+ " createdAt BIGINT NOT NULL,"
 					+ " status INT NOT NULL,"
 					+ " accessRules INT NOT NULL,"
 					+ " forumGroupId _HASH NOT NULL,"
@@ -177,7 +177,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE ajn_topic_subscriptions"
 					+ " (topicId _HASH NOT NULL,"
 					+ " state INT NOT NULL,"
-					+ " joinedAt LONG NOT NULL,"
+					+ " joinedAt BIGINT NOT NULL,"
 					+ " PRIMARY KEY (topicId),"
 					+ " FOREIGN KEY (topicId)"
 					+ " REFERENCES ajn_topics (topicId)"
@@ -533,7 +533,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration46_47(dbTypes),
 				new Migration47_48(),
 				new Migration48_49(),
-				new Migration49_50()
+				new Migration49_50(),
+				new Migration50_51(dbTypes)
 		);
 	}
 

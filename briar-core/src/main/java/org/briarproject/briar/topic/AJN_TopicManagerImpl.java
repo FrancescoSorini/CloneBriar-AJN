@@ -8,10 +8,13 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.db.AJN_TopicRecord;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumFactory;
 import org.briarproject.briar.api.forum.ForumManager;
+import org.briarproject.briar.api.forum.ForumPost;
+import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.identity.AJN_Author;
 import org.briarproject.briar.api.identity.AJN_ScoreManager;
 import org.briarproject.briar.api.topic.AJN_AccessRules;
@@ -186,6 +189,32 @@ public class AJN_TopicManagerImpl implements AJN_TopicManager {
 	@Override
 	public void archiveTopic(Transaction txn, AJN_TopicId topicId) throws DbException {
 		db.updateAjnTopicStatus(txn, topicId.getBytes(), AJN_TopicStatus.ARCHIVED.getCode());
+	}
+
+	@Override
+	public ForumPostHeader addTopicPost(AJN_TopicId topicId, String text,
+			@Nullable MessageId parentId) throws DbException {
+		return db.transactionWithResult(false,
+				txn -> addTopicPost(txn, topicId, text, parentId));
+	}
+
+	@Override
+	public ForumPostHeader addTopicPost(Transaction txn, AJN_TopicId topicId,
+			String text, @Nullable MessageId parentId) throws DbException {
+		AJN_Topic topic = getTopic(txn, topicId);
+		if (topic == null) {
+			throw new IllegalArgumentException("Topic non trovato");
+		}
+
+		// BLOCCO SCRITTURA LOCALE SE ARCHIVIATO
+		if (topic.isReadOnly()) {
+			throw new IllegalStateException("Impossibile pubblicare: il Topic è archiviato ed è in sola lettura.");
+		}
+
+		LocalAuthor author = identityManager.getLocalAuthor(txn);
+		ForumPost post = forumManager.createLocalPost(topic.getForumGroupId(), text,
+				System.currentTimeMillis(), parentId, author);
+		return forumManager.addLocalPost(txn, post);
 	}
 
 	private AJN_Topic parseRecord(AJN_TopicRecord record) {

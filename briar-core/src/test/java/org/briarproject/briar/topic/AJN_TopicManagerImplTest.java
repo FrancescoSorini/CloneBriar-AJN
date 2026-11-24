@@ -107,4 +107,27 @@ public class AJN_TopicManagerImplTest extends BrambleMockTestCase {
 
 		manager.archiveTopic(topicId);
 	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testAddTopicPostFailsIfTopicIsArchived() throws Exception {
+		Transaction txn = new Transaction(null, false);
+		AJN_TopicId topicId = new AJN_TopicId(getRandomId());
+		GroupId communityId = new GroupId(getRandomId());
+		AuthorId authorId = new AuthorId(getRandomId());
+		GroupId forumGroupId = new GroupId(getRandomId());
+
+		AJN_TopicRecord archivedRecord = new AJN_TopicRecord(
+				topicId.getBytes(), communityId, "Topic Archiviato", "Descrizione",
+				authorId, System.currentTimeMillis(), AJN_TopicStatus.ARCHIVED.getCode(),
+				AJN_AccessRules.PUBLIC.getCode(), forumGroupId
+		);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
+			oneOf(db).getAjnTopic(txn, topicId.getBytes());
+			will(returnValue(archivedRecord));
+		}});
+
+		manager.addTopicPost(topicId, "Nuovo post non consentito", null);
+	}
 }

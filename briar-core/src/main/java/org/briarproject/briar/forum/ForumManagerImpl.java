@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
+import org.briarproject.bramble.api.db.AJN_TopicRecord;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -27,6 +28,7 @@ import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
+import org.briarproject.briar.api.topic.AJN_TopicStatus;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
@@ -79,6 +81,11 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	protected DeliveryAction incomingMessage(Transaction txn, Message m,
 			BdfList body, BdfDictionary meta)
 			throws DbException, FormatException {
+
+		AJN_TopicRecord topicRecord = db.getAjnTopicByForumId(txn, m.getGroupId());
+		if (topicRecord != null && topicRecord.status == AJN_TopicStatus.ARCHIVED.getCode()) {
+			return DeliveryAction.REJECT;
+		}
 
 		messageTracker.trackIncomingMessage(txn, m);
 
